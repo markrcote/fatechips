@@ -1,0 +1,18 @@
+<h2>Game <%= @game.name %></h2>
+
+<h3>Pool</h3>
+
+<table>
+  <% @game.chip_pool.chip_count.each do |chip_count| %>
+    <tr><td><%= chip_count.chip_type %></td><td><%= chip_count.count %></td></tr>
+  <% end %>
+</table>
+
+<%= form_with scope: :game, url: take_game_path, local: true do |form| %>  <p>
+    <%= submit_tag("Take chip") %>
+  </p>
+<% end %>
+
+<p>
+  <%= link_to 'Back to games', controller: 'games' %>
+</p>
