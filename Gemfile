@@ -54,3 +54,6 @@ end
 gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'pg', '~> 1.2.3'
+gem 'graphql', '~> 1.11.1'
+
+gem 'graphiql-rails', group: :development
