@@ -1,0 +1,38 @@
+<h1>Edit game</h1>
+
+<%= form_with(model: @game, local: true) do |form| %>
+
+  <% if @game.errors.any? %>
+    <div id="error_explanation">
+      <h2>
+        <%= pluralize(@game.errors.count, "error") %> prohibited this game from being saved:
+      </h2>
+      <ul>
+        <% @game.errors.full_messages.each do |msg| %>
+          <li><%= msg %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <p>
+    <%= label_tag(:name) %>
+    <%= text_field_tag(:name) %>
+  </p>
+
+  <table>
+    <% ChipCount.chip_types.each do |chip_type| %>
+      <tr>
+        <td><%= label_tag("chip_#{chip_type[0]}", chip_type[0]) %></td>
+        <td><%= text_field_tag("chip_#{chip_type[0]}", nil, size: 4) %></td>
+      </tr>
+    <% end %>
+  </table>
+
+  <p>
+    <%= submit_tag("Save") %>
+  </p>
+
+<% end %>
+
+<%= link_to 'Back', games_path %>

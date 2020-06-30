@@ -7,6 +7,36 @@ class GamesController < ApplicationController
     @game = Game.new
   end
 
+  def edit
+    @game = Game.find(params[:id])
+  end
+
+  def update
+    @game = Game.find(params[:id])
+
+    if params.has_key?(:name)
+      @game.name = params[:name]
+      @game.save
+    end
+
+    @game.chip_pool.chip_count.each do |chip_count|
+      chip_count.destroy
+    end
+
+    params.keys.select {|param| param.start_with?("chip_")}.each do |param|
+      chip_type = param[5..-1]
+      chip_count = params[param].to_i
+      chip_count = ChipCount.create(
+        count: params[param].to_i,
+        chip_type: param[5..-1],
+        chip_pool_id: @game.chip_pool.id
+      )
+      chip_count.save
+    end
+
+    redirect_to @game
+  end
+
   def show
     @game = Game.find(params[:id])
   end
@@ -41,4 +71,9 @@ class GamesController < ApplicationController
       @take_text = "Took a #{taken.chip_type} chip."
     end
   end
+
+  private
+    def game_params
+      params.permit(:name)
+    end
 end
