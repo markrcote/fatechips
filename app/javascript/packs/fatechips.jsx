@@ -3,7 +3,6 @@
 // of the page.
 
 import { request } from 'graphql-request'
-import PropTypes from 'prop-types'
 import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
 import useSWR, { SWRConfig } from 'swr'
@@ -13,7 +12,7 @@ const API = '/graphql'
 const fetcher = query => request(API, query)
 
 function Game(props) {
-  const { data } = useSWR(
+  const { data, mutate } = useSWR(
     `{
       game(id: ${props.gameId}) {
         name
@@ -28,7 +27,7 @@ function Game(props) {
 
   let body = null;
 
-  if (!data) {
+  if (!data || !data.game) {
     return (
       <div>loading...</div>
     );
@@ -48,6 +47,26 @@ function Game(props) {
         </tbody>
       </table>
 
+      <button onClick={async () => {
+        request(API, `mutation {
+          takeChip(input: {gameId: 5}) {
+            chipType
+            game {
+              name
+              chips {
+                chipType
+                count
+              }
+            }
+          }
+        }`).then((result) => {
+          alert("got a " + result.takeChip.chipType + " chip");
+          mutate(API, result.takeChip.game, false)
+        })
+      }}>Take chip</button>
+
+      <div id="messages">
+      </div>
       <p>
         <Link to="/">Back to games</Link>
       </p>

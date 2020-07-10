@@ -22,4 +22,8 @@ class Game < ApplicationRecord
     chip_count.save
     return chip_count
   end
+
+  def chips
+    chip_pool.chip_count.all
+  end
 end

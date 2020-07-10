@@ -8,9 +8,5 @@ module Types
       description("The number and types of chips in this pool")
     field(:created_at, GraphQL::Types::ISO8601DateTime, null: false)
     field(:updated_at, GraphQL::Types::ISO8601DateTime, null: false)
-
-    def chips
-      object.chip_pool.chip_count.all
-    end
   end
 end
