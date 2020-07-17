@@ -12,9 +12,17 @@ const API = '/graphql'
 const fetcher = query => request(API, query)
 
 function Messages(props) {
+  if (props.messages.length == 0) {
+    return <div></div>;
+  }
+
+  let messages = [<p key="0"><b>{props.messages[0]}</b></p>].concat(
+    props.messages.slice(1).map((message, idx) => <p key={idx + 1}>{message}</p>)
+  );
+
   return (
     <div>
-      { props.messages }
+      { messages }
     </div>
   )
 }
@@ -70,7 +78,7 @@ function Game(props) {
             }
           }
         }`).then((result) => {
-          setMessages("got a " + result.takeChip.chipType + " chip");
+          setMessages(["got a " + result.takeChip.chipType + " chip"].concat(messages));
           mutate(API, result.takeChip.game, false);
         })
       }}>Take chip</button>
