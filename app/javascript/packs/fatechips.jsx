@@ -102,24 +102,20 @@ function Games() {
     fetcher
   );
 
-  let body = null;
-
   if (!data) {
-    body = <div>loading...</div>;
-  } else {
-    body = <div>
-      <ul>
-        { data.games.map(game => (
-          <li key={game.id}><Link to={"game/" + game.id}>{game.name}</Link></li>
-        ))}
-      </ul>
-    </div>;
+    return <div>loading...</div>;
   }
 
   return (
     <div className="games">
       <h2>Games</h2>
-      {body}
+      <div>
+        <ul>
+          { data.games.map(game => (
+            <li key={game.id}><Link to={"game/" + game.id}>{game.name}</Link></li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
