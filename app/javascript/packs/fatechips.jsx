@@ -62,7 +62,7 @@ function Game(props) {
       </table>
 
       <button onClick={async () => {
-        request(API, `mutation {
+        let result = await request(API, `mutation {
           takeChip(input: {gameId: ${props.gameId}}) {
             chipType
             game {
@@ -73,10 +73,10 @@ function Game(props) {
               }
             }
           }
-        }`).then((result) => {
-          setMessages(["got a " + result.takeChip.chipType + " chip"].concat(messages));
-          mutate(API, result.takeChip.game, false);
-        })
+        }`);
+
+        setMessages(["got a " + result.takeChip.chipType + " chip"].concat(messages));
+        mutate({ ...data, game: result.takeChip.game }, false);
       }}>Take chip</button>
 
       <p>
