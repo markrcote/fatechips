@@ -57,3 +57,5 @@ gem 'pg', '~> 1.2.3'
 gem 'graphql', '~> 1.11.1'
 
 gem 'graphiql-rails', group: :development
+
+gem "unicorn", "~> 5.5"
