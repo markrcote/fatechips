@@ -36,7 +36,7 @@ function Game(props) {
         }
       }
     }`,
-    fetcher
+    fetcher, { refreshInterval: 2000 }
   );
 
   let body = null;
