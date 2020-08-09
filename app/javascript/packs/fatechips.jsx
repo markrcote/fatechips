@@ -103,7 +103,7 @@ function Games() {
   }
 
   return (
-    <div className="games">
+    <div>
       <h2>Games</h2>
       <div>
         <ul>
@@ -124,6 +124,7 @@ function App() {
         fetcher: (...args) => fetch(...args).then(res => res.json())
       }}
     >
+      <h1>Fate Chips</h1>
       <Router>
         <Games path="/" />
         <Game path="game/:gameId" />
