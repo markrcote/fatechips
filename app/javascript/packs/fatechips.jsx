@@ -7,6 +7,21 @@ import { Router, Link } from "@reach/router"
 const API = '/graphql'
 const fetcher = query => request(API, query)
 
+function sortStrings(a, b) {
+  a = a.toLowerCase();
+  b = b.toLowerCase();
+
+  if (a > b) {
+    return 1;
+  }
+
+  if (a < b) {
+    return -1;
+  }
+
+  return 0;
+}
+
 function Messages(props) {
   if (props.messages.length == 0) {
     return <div></div>;
@@ -54,7 +69,7 @@ function Game(props) {
 
       <table>
         <tbody>
-          { data.game.chips.sort((a, b) => a.chipType - b.chipType).map(chipCount => (
+          { data.game.chips.sort((a, b) => sortStrings(a.chipType, b.chipType)).map(chipCount => (
             <tr key={chipCount.chipType}>
               <td>{chipCount.chipType}</td><td>{chipCount.count}</td>
               <td><button onClick={async () => {
