@@ -24,6 +24,7 @@ function Messages(props) {
 }
 
 function Game(props) {
+  // FIXME: Lots of refactoring to do here.
   const [messages, setMessages] = useState([]);
 
   const { data, mutate } = useSWR(
@@ -56,6 +57,26 @@ function Game(props) {
           { data.game.chips.sort((a, b) => a.chipType - b.chipType).map(chipCount => (
             <tr key={chipCount.chipType}>
               <td>{chipCount.chipType}</td><td>{chipCount.count}</td>
+              <td><button onClick={async () => {
+                  const result = await request(API, `mutation {
+                    returnChip(input: {gameId: ${props.gameId}, chipType: "${chipCount.chipType}"}) {
+                      chipCount {
+                        chipType
+                      }
+                      game {
+                        name
+                        chips {
+                          chipType
+                          count
+                        }
+                      }
+                    }
+                  }`);
+
+                  setMessages([`returned a ${result.returnChip.chipCount.chipType} chip`].concat(messages));
+                  mutate({ ...data, game: result.returnChip.game }, false);
+                }}>Return chip</button>
+              </td>
             </tr>
           ))}
         </tbody>
