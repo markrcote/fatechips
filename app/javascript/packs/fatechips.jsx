@@ -75,7 +75,7 @@ function Game(props) {
           }
         }`);
 
-        setMessages(["got a " + result.takeChip.chipType + " chip"].concat(messages));
+        setMessages([`got a ${result.takeChip.chipType} chip`].concat(messages));
         mutate({ ...data, game: result.takeChip.game }, false);
       }}>Take chip</button>
 
