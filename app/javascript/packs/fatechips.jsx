@@ -53,7 +53,7 @@ function Game(props) {
 
       <table>
         <tbody>
-          { data.game.chips.map(chipCount => (
+          { data.game.chips.sort((a, b) => a.chipType - b.chipType).map(chipCount => (
             <tr key={chipCount.chipType}>
               <td>{chipCount.chipType}</td><td>{chipCount.count}</td>
             </tr>
