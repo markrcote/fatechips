@@ -63,3 +63,4 @@ gem "unicorn", "~> 5.5"
 gem "nokogiri", ">= 1.11.0.rc4"
 
 gem "devise"
+gem "devise-token_authenticatable"

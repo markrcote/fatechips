@@ -1,11 +1,24 @@
 # frozen_string_literal: true
 
-# Assuming you have not yet modified this file, each configuration option below
-# is set to its default value. Note that some are commented out while others
-# are not: uncommented lines are intended to protect your configuration from
-# breaking changes in upgrades (i.e., in the event that future versions of
-# Devise change the default values for those options).
-#
+Devise::TokenAuthenticatable.setup do |config|
+  # enables the expiration of a token after a specified amount of time,
+  # requires an additional field on the model: `authentication_token_created_at`
+  # defaults to nil
+  # config.token_expires_in = 1.day
+
+  # set the authentication key name used by this module,
+  # defaults to :auth_token
+  # config.token_authentication_key = :auth_token
+
+  # enable reset of the authentication token before the model is saved,
+  # defaults to false
+  # config.should_reset_authentication_token = true
+
+  # enables the setting of the authentication token - if not already - before the model is saved,
+  # defaults to false
+  config.should_ensure_authentication_token = true
+end
+
 # Use this hook to configure devise mailer, warden hooks and so forth.
 # Many of these configuration options can be set straight in your model.
 Devise.setup do |config|
@@ -79,10 +92,10 @@ Devise.setup do |config|
   # enable this with :database unless you are using a custom strategy.
   # The supported strategies are:
   # :database      = Support basic authentication with authentication key + password
-  # config.http_authenticatable = false
+  config.http_authenticatable = true
 
   # If 401 status code should be returned for AJAX requests. True by default.
-  # config.http_authenticatable_on_xhr = true
+  config.http_authenticatable_on_xhr = false
 
   # The realm used in Http Basic Authentication. 'Application' by default.
   # config.http_authentication_realm = 'Application'
@@ -97,7 +110,7 @@ Devise.setup do |config|
   # Notice that if you are skipping storage for all authentication paths, you
   # may want to disable generating routes to Devise's sessions controller by
   # passing skip: :sessions to `devise_for` in your config/routes.rb
-  config.skip_session_storage = [:http_auth]
+  config.skip_session_storage = [:http_auth, :token_auth]
 
   # By default, Devise cleans up the CSRF token on authentication to
   # avoid CSRF token fixation attacks. This means that, when using AJAX
