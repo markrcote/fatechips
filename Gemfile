@@ -61,3 +61,5 @@ gem 'graphiql-rails', group: :development
 gem "unicorn", "~> 5.5"
 
 gem "nokogiri", ">= 1.11.0.rc4"
+
+gem "devise"
