@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_06_19_185913) do
+ActiveRecord::Schema.define(version: 2021_01_09_030224) do
 
   create_table "chip_counts", force: :cascade do |t|
     t.integer "chip_type"
