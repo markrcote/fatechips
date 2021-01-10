@@ -1,11 +1,20 @@
-import { request } from 'graphql-request'
+import { setHeader, GraphQLClient } from 'graphql-request'
 import React, { useState } from 'react'
 import ReactDOM from 'react-dom'
 import useSWR, { SWRConfig } from 'swr'
 import { Router, Link } from "@reach/router"
 
-const API = '/graphql'
-const fetcher = query => request(API, query)
+const AUTH_TOKEN_KEY = 'authToken';
+const API = '/graphql';
+const csrfToken = document.querySelector('meta[name="csrf-token"]').attributes.content.value;
+const authToken = localStorage.getItem(AUTH_TOKEN_KEY);
+
+const client = new GraphQLClient(API);
+client.setHeaders({
+  'X-CSRF-Token': csrfToken,
+  authorization: authToken ? `Bearer ${authToken}` : '',
+});
+const fetcher = query => client.request(query);
 
 function sortStrings(a, b) {
   a = a.toLowerCase();
@@ -73,7 +82,7 @@ function Game(props) {
             <tr key={chipCount.chipType}>
               <td>{chipCount.chipType}</td><td>{chipCount.count}</td>
               <td><button onClick={async () => {
-                  const result = await request(API, `mutation {
+                  const result = await client.request(`mutation {
                     returnChip(input: {gameId: ${props.gameId}, chipType: "${chipCount.chipType}"}) {
                       chipCount {
                         chipType
@@ -98,7 +107,7 @@ function Game(props) {
       </table>
 
       <button onClick={async () => {
-        let result = await request(API, `mutation {
+        let result = await client.request(`mutation {
           takeChip(input: {gameId: ${props.gameId}}) {
             chipType
             game {

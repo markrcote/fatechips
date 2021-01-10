@@ -8,6 +8,7 @@ module Mutations
     field(:errors, [String], null: false)
 
     def resolve(game_id:, chip_type:)
+      authorize_user
       game = Game.find(game_id)
       chip_count = game.return_chip(chip_type: chip_type)
       {
