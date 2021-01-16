@@ -15,7 +15,7 @@ ActiveRecord::Schema.define(version: 2021_01_09_193544) do
   create_table "chip_counts", force: :cascade do |t|
     t.integer "chip_type"
     t.integer "count"
-    t.integer "chip_pool_id", null: false
+    t.bigint "chip_pool_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["chip_pool_id"], name: "index_chip_counts_on_chip_pool_id"
@@ -28,7 +28,7 @@ ActiveRecord::Schema.define(version: 2021_01_09_193544) do
 
   create_table "games", force: :cascade do |t|
     t.string "name"
-    t.integer "chip_pool_id", null: false
+    t.bigint "chip_pool_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["chip_pool_id"], name: "index_games_on_chip_pool_id"
@@ -36,8 +36,8 @@ ActiveRecord::Schema.define(version: 2021_01_09_193544) do
 
   create_table "players", force: :cascade do |t|
     t.string "name"
-    t.integer "game_id", null: false
-    t.integer "chip_pool_id", null: false
+    t.bigint "game_id", null: false
+    t.bigint "chip_pool_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["chip_pool_id"], name: "index_players_on_chip_pool_id"

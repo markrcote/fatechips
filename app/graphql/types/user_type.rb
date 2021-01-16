@@ -7,12 +7,6 @@ module Types
       implements GraphQL::Types::Relay::Node
       global_id_field :id
   
-      field :lastName, String, null: false
-      delegate :last_name, to: :object
-  
-      field :firstName, String, null: false
-      delegate :first_name, to: :object
-  
       field :email, String, null: false
   
       field :authentication_token, String, null: false

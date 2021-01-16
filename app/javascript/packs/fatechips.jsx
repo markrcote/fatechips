@@ -161,6 +161,95 @@ function Games() {
   );
 }
 
+function SignIn() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  return (
+    <div>
+      <h2>Sign In</h2>
+      <div>
+        <label>Email</label>
+        <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
+      </div>
+      <div>
+        <label>Password</label>
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      </div>
+      <div>
+        <button onClick={async () => {
+          const result = await client.request(`mutation {
+            signIn(input: {
+              email: "${email}"
+              password: "${password}"
+            }) {
+              user {
+                id
+                authenticationToken
+              }
+            }
+          }`)}}>Sign In</button>
+      </div>
+    </div>
+  );
+}
+
+function RegisterUser() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  return (
+    <div>
+      <h2>Register new user</h2>
+      <div>
+        <label>Email</label>
+        <input type="text" value={email} onChange={(e) => setEmail(e.target.value)} />
+      </div>
+      <div>
+        <label>Password</label>
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+      </div>
+      <div>
+        <button onClick={async () => {
+          const result = await client.request(`mutation {
+            registerUser(input: {
+              email: "${email}"
+              password: "${password}"
+            }) {
+              user {
+                id
+                email
+                authenticationToken
+              }
+            }
+          }`)
+        }}>Sign Up</button>
+      </div>
+    </div>
+  )
+}
+
+function SignOut() {
+  return (
+    <div>
+      <h2>Sign Out</h2>
+      <div>Click to sign out:</div>
+      <div>
+        <button onClick={async () => {
+          const result = await client.request(`mutation {
+            signOut {
+              user {
+                id
+                email
+              }
+            }
+          }`)
+        }}>Sign Out</button>
+      </div>
+    </div>
+  );
+}
+
 function App() {
   return (
     <SWRConfig
@@ -173,6 +262,9 @@ function App() {
       <Router>
         <Games path="/" />
         <Game path="game/:gameId" />
+        <RegisterUser path="/register" />
+        <SignIn path="/signin" />
+        <SignOut path="/signout" />
       </Router>
     </SWRConfig>
   );
