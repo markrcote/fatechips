@@ -8,6 +8,7 @@ module Mutations
 
     def resolve
       user = context[:current_user]
+      puts "user: #{user}"
       if user.present?
         success = user.reset_authentication_token!
         context[:current_user] = nil

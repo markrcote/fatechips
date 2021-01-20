@@ -1,8 +1,8 @@
 import { setHeader, GraphQLClient } from 'graphql-request'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import ReactDOM from 'react-dom'
 import useSWR, { SWRConfig } from 'swr'
-import { Router, Link } from "@reach/router"
+import { Link, Router, navigate, redirectTo } from "@reach/router"
 
 const AUTH_TOKEN_KEY = 'authToken';
 const USER_ID_KEY = 'userId';
@@ -10,13 +10,12 @@ const USER_EMAIL_KEY = 'userEmail';
 const API = '/graphql';
 const csrfToken = document.querySelector('meta[name="csrf-token"]').attributes.content.value;
 const authToken = localStorage.getItem(AUTH_TOKEN_KEY);
+const userId = localStorage.getItem(USER_ID_KEY);
+const userEmail = localStorage.getItem(USER_EMAIL_KEY);
 
-const client = new GraphQLClient(API);
-client.setHeaders({
-  'X-CSRF-Token': csrfToken,
-  authorization: authToken ? `Bearer ${authToken}` : '',
-});
-const fetcher = query => client.request(query);
+const gqlClient = new GraphQLClient(API);
+gqlClient.setHeader('X-CSRF-Token', csrfToken);
+const fetcher = query => gqlClient.request(query);
 
 function sortStrings(a, b) {
   a = a.toLowerCase();
@@ -31,6 +30,52 @@ function sortStrings(a, b) {
   }
 
   return 0;
+}
+
+function setAuthHeader(authToken) {
+  gqlClient.setHeader('authorization', authToken ? `Bearer ${authToken}` : '');  
+}
+
+function saveUser(user) {
+  if (user === null) {
+    localStorage.removeItem(AUTH_TOKEN_KEY);
+    localStorage.removeItem(USER_ID_KEY);
+    localStorage.removeItem(USER_EMAIL_KEY);
+    setAuthHeader(null);
+  } else {
+    localStorage.setItem(AUTH_TOKEN_KEY, user.authenticationToken);
+    localStorage.setItem(USER_ID_KEY, user.id);
+    localStorage.setItem(USER_EMAIL_KEY, user.email);
+    setAuthHeader(user.authenticationToken);
+  }
+}
+
+function loadUser() {
+  const userId = localStorage.getItem(USER_ID_KEY);
+  if (userId === null) {
+    return null;
+  }
+
+  return {
+    id: userId,
+    email: localStorage.getItem(USER_EMAIL_KEY),
+    authenticationToken: localStorage.getItem(AUTH_TOKEN_KEY),
+  };
+}
+
+function UserStatus(props) {
+  if (props.user === null) {
+    return null;
+  }
+
+  return (
+    <div>
+      <p>
+        <span>{props.user.email}</span>
+        <Link to="/signout">sign out</Link>
+      </p>
+    </div>
+  )
 }
 
 function Messages(props) {
@@ -84,7 +129,7 @@ function Game(props) {
             <tr key={chipCount.chipType}>
               <td>{chipCount.chipType}</td><td>{chipCount.count}</td>
               <td><button onClick={async () => {
-                  const result = await client.request(`mutation {
+                  const result = await gqlClient.request(`mutation {
                     returnChip(input: {gameId: ${props.gameId}, chipType: "${chipCount.chipType}"}) {
                       chipCount {
                         chipType
@@ -109,7 +154,7 @@ function Game(props) {
       </table>
 
       <button onClick={async () => {
-        let result = await client.request(`mutation {
+        let result = await gqlClient.request(`mutation {
           takeChip(input: {gameId: ${props.gameId}}) {
             chipType
             game {
@@ -163,7 +208,7 @@ function Games() {
   );
 }
 
-function SignIn() {
+function SignIn(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -180,7 +225,7 @@ function SignIn() {
       </div>
       <div>
         <button onClick={async () => {
-          let result = await client.request(`mutation {
+          let result = await gqlClient.request(`mutation {
             signIn(input: {
               email: "${email}"
               password: "${password}"
@@ -193,16 +238,18 @@ function SignIn() {
             }
           }`);
 
-          localStorage.setItem(AUTH_TOKEN_KEY, result.signIn.user.authenticationToken);
-          localStorage.setItem(USER_ID_KEY, result.signIn.user.id);
-          localStorage.setItem(USER_EMAIL_KEY, result.signIn.user.email);
+          props.onUserChange(result.signIn.user);
+          navigate("/");
           }}>Sign In</button>
+      </div>
+      <div>
+        <p>Or <Link to="/register">register</Link> a new account</p>
       </div>
     </div>
   );
 }
 
-function RegisterUser() {
+function RegisterUser(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -219,7 +266,7 @@ function RegisterUser() {
       </div>
       <div>
         <button onClick={async () => {
-          const result = await client.request(`mutation {
+          const result = await gqlClient.request(`mutation {
             registerUser(input: {
               email: "${email}"
               password: "${password}"
@@ -230,21 +277,23 @@ function RegisterUser() {
                 authenticationToken
               }
             }
-          }`)
+          }`);
+
+          props.onUserChange(result.registerUser.user);
+          navigate("/");
         }}>Sign Up</button>
       </div>
     </div>
   )
 }
 
-function SignOut() {
+function SignOut(props) {
   return (
     <div>
-      <h2>Sign Out</h2>
       <div>Click to sign out:</div>
       <div>
         <button onClick={async () => {
-          const result = await client.request(`mutation {
+          const result = await gqlClient.request(`mutation {
             signOut(input: {}) {
               user {
                 id
@@ -253,9 +302,8 @@ function SignOut() {
             }
           }`);
 
-          localStorage.removeItem(AUTH_TOKEN_KEY);
-          localStorage.removeItem(USER_ID_KEY);
-          localStorage.removeItem(USER_EMAIL_KEY);
+          props.onUserChange(null);
+          navigate("/signin");
         }}>Sign Out</button>
       </div>
     </div>
@@ -263,6 +311,15 @@ function SignOut() {
 }
 
 function App() {
+  const [user, setUser] = useState(loadUser());
+  useEffect(() => {
+    saveUser(user);
+    const pathname = window.location.pathname;
+    if (user === null && pathname != "/signin" && pathname != "/register") {
+      navigate("/signin");
+    }
+  });
+
   return (
     <SWRConfig
       value={{
@@ -271,12 +328,13 @@ function App() {
       }}
     >
       <h1>Fate Chips</h1>
+      <UserStatus user={user} />
       <Router>
         <Games path="/" />
         <Game path="game/:gameId" />
-        <RegisterUser path="/register" />
-        <SignIn path="/signin" />
-        <SignOut path="/signout" />
+        <RegisterUser path="/register" onUserChange={setUser} />
+        <SignIn path="/signin" onUserChange={setUser} />
+        <SignOut path="/signout" onUserChange={setUser} />
       </Router>
     </SWRConfig>
   );
