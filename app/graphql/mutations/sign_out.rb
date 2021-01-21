@@ -4,12 +4,13 @@ module Mutations
   class SignOut < Mutations::BaseMutation
     graphql_name "SignOut"
 
-    field :user, Types::UserType, null: false
+    field(:user, Types::UserType, null: false);
 
     def resolve
       user = context[:current_user]
       if user.present?
         success = user.reset_authentication_token!
+        context[:current_user] = nil
 
         MutationResult.call(
           obj: { user: user },

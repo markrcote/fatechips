@@ -5,6 +5,8 @@ import useSWR, { SWRConfig } from 'swr'
 import { Router, Link } from "@reach/router"
 
 const AUTH_TOKEN_KEY = 'authToken';
+const USER_ID_KEY = 'userId';
+const USER_EMAIL_KEY = 'userEmail';
 const API = '/graphql';
 const csrfToken = document.querySelector('meta[name="csrf-token"]').attributes.content.value;
 const authToken = localStorage.getItem(AUTH_TOKEN_KEY);
@@ -178,7 +180,7 @@ function SignIn() {
       </div>
       <div>
         <button onClick={async () => {
-          const result = await client.request(`mutation {
+          let result = await client.request(`mutation {
             signIn(input: {
               email: "${email}"
               password: "${password}"
@@ -186,9 +188,15 @@ function SignIn() {
               user {
                 id
                 authenticationToken
+                email
               }
             }
-          }`)}}>Sign In</button>
+          }`);
+
+          localStorage.setItem(AUTH_TOKEN_KEY, result.signIn.user.authenticationToken);
+          localStorage.setItem(USER_ID_KEY, result.signIn.user.id);
+          localStorage.setItem(USER_EMAIL_KEY, result.signIn.user.email);
+          }}>Sign In</button>
       </div>
     </div>
   );
@@ -237,13 +245,17 @@ function SignOut() {
       <div>
         <button onClick={async () => {
           const result = await client.request(`mutation {
-            signOut {
+            signOut(input: {}) {
               user {
                 id
                 email
               }
             }
-          }`)
+          }`);
+
+          localStorage.removeItem(AUTH_TOKEN_KEY);
+          localStorage.removeItem(USER_ID_KEY);
+          localStorage.removeItem(USER_EMAIL_KEY);
         }}>Sign Out</button>
       </div>
     </div>
