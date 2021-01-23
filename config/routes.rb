@@ -8,9 +8,5 @@ Rails.application.routes.draw do
   end
   post "/graphql", to: "graphql#execute"
 
-  resources :games do
-    post 'take', on: :member
-  end
-
   match '*path', to: 'main#index', via: :all
 end
