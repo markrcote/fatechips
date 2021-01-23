@@ -87,6 +87,64 @@ function Game(props) {
     );
   }
 
+  async function handleReturnChip(chipType) {
+    const result = await mutateWithAuth(`mutation {
+      returnChip(input: {gameId: ${props.gameId}, chipType: "${chipType}"}) {
+        chipCount {
+          chipType
+        }
+        game {
+          name
+          chipPool {
+            chipCount {
+              chipType
+              count
+            }
+          }
+          player {
+            chipPool {
+              chipCount {
+                chipType
+                count
+              }
+            }
+          }
+        }
+      }
+    }`, props.onUserError);
+
+    if (result === null) {
+      return;
+    }
+
+    setMessages([`returned a ${result.returnChip.chipCount.chipType} chip`].concat(messages));
+    mutate({ ...data, game: result.returnChip.game }, false);
+  }
+
+  async function handleTakeChip() {
+    let result = await mutateWithAuth(`mutation {
+      takeChip(input: {gameId: ${props.gameId}}) {
+        chipType
+        game {
+          name
+          chipPool {
+            chipCount {
+              chipType
+              count
+            }
+          }
+        }
+      }
+    }`, props.onUserError);
+
+    if (result === null) {
+      return;
+    }
+
+    setMessages([`got a ${result.takeChip.chipType} chip`].concat(messages));
+    mutate({ ...data, game: result.takeChip.game }, false);
+  }
+
   return (
     <div>
       <h2>Game "{data.game.name}"</h2>
@@ -96,68 +154,13 @@ function Game(props) {
           { data.game.chipPool.chipCount.sort((a, b) => sortStrings(a.chipType, b.chipType)).map(chipCount => (
             <tr key={chipCount.chipType}>
               <td>{chipCount.chipType}</td><td>{chipCount.count}</td>
-              <td><button onClick={async () => {
-                  const result = await mutateWithAuth(`mutation {
-                    returnChip(input: {gameId: ${props.gameId}, chipType: "${chipCount.chipType}"}) {
-                      chipCount {
-                        chipType
-                      }
-                      game {
-                        name
-                        chipPool {
-                          chipCount {
-                            chipType
-                            count
-                          }
-                        }
-                        player {
-                          chipPool {
-                            chipCount {
-                              chipType
-                              count
-                            }
-                          }
-                        }
-                      }
-                    }
-                  }`, props.onUserError);
-
-                  if (result === null) {
-                    return;
-                  }
-
-                  setMessages([`returned a ${result.returnChip.chipCount.chipType} chip`].concat(messages));
-                  mutate({ ...data, game: result.returnChip.game }, false);
-                }}>Return chip</button>
-              </td>
+              <td><button onClick={async () => handleReturnChip(chipCount.chipType)}>Return chip</button></td>
             </tr>
           ))}
         </tbody>
       </table>
 
-      <button onClick={async () => {
-        let result = await mutateWithAuth(`mutation {
-          takeChip(input: {gameId: ${props.gameId}}) {
-            chipType
-            game {
-              name
-              chipPool {
-                chipCount {
-                  chipType
-                  count
-                }
-              }
-            }
-          }
-        }`, props.onUserError);
-
-        if (result === null) {
-          return;
-        }
-
-        setMessages([`got a ${result.takeChip.chipType} chip`].concat(messages));
-        mutate({ ...data, game: result.takeChip.game }, false);
-      }}>Take chip</button>
+      <button onClick={handleTakeChip}>Take chip</button>
 
       <p>
         <Link to="/">Back to games</Link>
