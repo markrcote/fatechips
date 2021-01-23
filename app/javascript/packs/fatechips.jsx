@@ -78,6 +78,15 @@ function UserStatus(props) {
   )
 }
 
+async function mutateWithAuth(mutation, onUserError) {
+  try {
+    return await gqlClient.request(mutation);
+  } catch (e) {
+    onUserError(e);
+  }
+  return null;
+}
+
 function Messages(props) {
   if (props.messages.length == 0) {
     return <div></div>;
@@ -129,7 +138,7 @@ function Game(props) {
             <tr key={chipCount.chipType}>
               <td>{chipCount.chipType}</td><td>{chipCount.count}</td>
               <td><button onClick={async () => {
-                  const result = await gqlClient.request(`mutation {
+                  const result = await mutateWithAuth(`mutation {
                     returnChip(input: {gameId: ${props.gameId}, chipType: "${chipCount.chipType}"}) {
                       chipCount {
                         chipType
@@ -142,7 +151,11 @@ function Game(props) {
                         }
                       }
                     }
-                  }`);
+                  }`, props.onUserError);
+
+                  if (result === null) {
+                    return;
+                  }
 
                   setMessages([`returned a ${result.returnChip.chipCount.chipType} chip`].concat(messages));
                   mutate({ ...data, game: result.returnChip.game }, false);
@@ -154,7 +167,7 @@ function Game(props) {
       </table>
 
       <button onClick={async () => {
-        let result = await gqlClient.request(`mutation {
+        let result = await mutateWithAuth(`mutation {
           takeChip(input: {gameId: ${props.gameId}}) {
             chipType
             game {
@@ -165,7 +178,11 @@ function Game(props) {
               }
             }
           }
-        }`);
+        }`, props.onUserError);
+
+        if (result === null) {
+          return;
+        }
 
         setMessages([`got a ${result.takeChip.chipType} chip`].concat(messages));
         mutate({ ...data, game: result.takeChip.game }, false);
@@ -211,6 +228,7 @@ function Games() {
 function SignIn(props) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [authError, setAuthError] = useState(null);
 
   return (
     <div>
@@ -225,7 +243,7 @@ function SignIn(props) {
       </div>
       <div>
         <button onClick={async () => {
-          let result = await gqlClient.request(`mutation {
+          let result = await mutateWithAuth(`mutation {
             signIn(input: {
               email: "${email}"
               password: "${password}"
@@ -236,7 +254,11 @@ function SignIn(props) {
                 email
               }
             }
-          }`);
+          }`, (e)=>{setAuthError(e.response.errors[0].message)});
+
+          if (result === null) {
+            return;
+          }
 
           props.onUserChange(result.signIn.user);
           navigate("/");
@@ -244,6 +266,9 @@ function SignIn(props) {
       </div>
       <div>
         <p>Or <Link to="/register">register</Link> a new account</p>
+      </div>
+      <div>
+        <p>{authError}</p>
       </div>
     </div>
   );
@@ -331,7 +356,7 @@ function App() {
       <UserStatus user={user} />
       <Router>
         <Games path="/" />
-        <Game path="game/:gameId" />
+        <Game path="game/:gameId" onUserError={() => {setUser(null)}} />
         <RegisterUser path="/register" onUserChange={setUser} />
         <SignIn path="/signin" onUserChange={setUser} />
         <SignOut path="/signout" onUserChange={setUser} />
