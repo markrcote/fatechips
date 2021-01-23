@@ -58,14 +58,24 @@ function Game(props) {
 
   const { data, mutate } = useSWR(
     `{
-      game(id: ${props.gameId}) {
-        name
-        chips {
-          chipType
-          count
-        }
-      }
-    }`,
+       game(id: ${props.gameId}) {
+         name
+         chipPool {
+           chipCount {
+             chipType
+             count
+           }
+         }
+         player {
+           chipPool {
+             chipCount {
+               chipType
+               count
+             }
+           }
+         }
+       }
+     }`,
     fetcher, { refreshInterval: 2000 }
   );
 
@@ -83,7 +93,7 @@ function Game(props) {
 
       <table>
         <tbody>
-          { data.game.chips.sort((a, b) => sortStrings(a.chipType, b.chipType)).map(chipCount => (
+          { data.game.chipPool.chipCount.sort((a, b) => sortStrings(a.chipType, b.chipType)).map(chipCount => (
             <tr key={chipCount.chipType}>
               <td>{chipCount.chipType}</td><td>{chipCount.count}</td>
               <td><button onClick={async () => {
@@ -94,9 +104,19 @@ function Game(props) {
                       }
                       game {
                         name
-                        chips {
-                          chipType
-                          count
+                        chipPool {
+                          chipCount {
+                            chipType
+                            count
+                          }
+                        }
+                        player {
+                          chipPool {
+                            chipCount {
+                              chipType
+                              count
+                            }
+                          }
                         }
                       }
                     }
@@ -121,9 +141,11 @@ function Game(props) {
             chipType
             game {
               name
-              chips {
-                chipType
-                count
+              chipPool {
+                chipCount {
+                  chipType
+                  count
+                }
               }
             }
           }
