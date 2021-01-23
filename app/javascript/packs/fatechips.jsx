@@ -52,6 +52,28 @@ function Messages(props) {
   )
 }
 
+function ChipPool(props) {
+  return (
+    <div>
+      <table>
+        <tbody>
+          { props.chipPool.chipCount.sort((a, b) => sortStrings(a.chipType, b.chipType)).map(chipCount => (
+            <tr key={chipCount.chipType}>
+              <td>{chipCount.chipType}</td><td>{chipCount.count}</td>
+              { 
+                props.onReturnChip &&
+                <td><button onClick={async () => props.onReturnChip(chipCount.chipType)}>Return chip</button></td>
+              }
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      { props.onTakeChip && <button onClick={props.onTakeChip}>Take chip</button> }
+    </div>
+  );
+}
+
 function Game(props) {
   // FIXME: Lots of refactoring to do here.
   const [messages, setMessages] = useState([]);
@@ -133,6 +155,14 @@ function Game(props) {
               count
             }
           }
+          player {
+            chipPool {
+              chipCount {
+                chipType
+                count
+              }
+            }
+          }
         }
       }
     }`, props.onUserError);
@@ -149,18 +179,7 @@ function Game(props) {
     <div>
       <h2>Game "{data.game.name}"</h2>
 
-      <table>
-        <tbody>
-          { data.game.chipPool.chipCount.sort((a, b) => sortStrings(a.chipType, b.chipType)).map(chipCount => (
-            <tr key={chipCount.chipType}>
-              <td>{chipCount.chipType}</td><td>{chipCount.count}</td>
-              <td><button onClick={async () => handleReturnChip(chipCount.chipType)}>Return chip</button></td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <button onClick={handleTakeChip}>Take chip</button>
+      <ChipPool chipPool={data.game.chipPool} onReturnChip={handleReturnChip} onTakeChip={handleTakeChip} />
 
       <p>
         <Link to="/">Back to games</Link>

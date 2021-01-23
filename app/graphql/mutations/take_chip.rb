@@ -9,7 +9,7 @@ module Mutations
     def resolve(game_id:)
       authorize_user
       game = Game.find(game_id)
-      chip_count = game.take_chip
+      chip_count = game.chip_pool.take_chip
       {
         chip_type: chip_count.chip_type,
         game: game,
