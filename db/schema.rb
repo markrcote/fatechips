@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2021_01_09_193544) do
+ActiveRecord::Schema.define(version: 2021_01_24_033108) do
 
   create_table "chip_counts", force: :cascade do |t|
     t.integer "chip_type"
@@ -36,12 +36,14 @@ ActiveRecord::Schema.define(version: 2021_01_09_193544) do
 
   create_table "players", force: :cascade do |t|
     t.string "name"
-    t.bigint "game_id", null: false
-    t.bigint "chip_pool_id", null: false
+    t.integer "game_id", null: false
+    t.integer "chip_pool_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.integer "user_id", null: false
     t.index ["chip_pool_id"], name: "index_players_on_chip_pool_id"
     t.index ["game_id"], name: "index_players_on_game_id"
+    t.index ["user_id"], name: "index_players_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -63,4 +65,5 @@ ActiveRecord::Schema.define(version: 2021_01_09_193544) do
   add_foreign_key "games", "chip_pools"
   add_foreign_key "players", "chip_pools"
   add_foreign_key "players", "games"
+  add_foreign_key "players", "users"
 end
