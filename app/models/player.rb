@@ -15,7 +15,9 @@ class Player < ApplicationRecord
 
   def return_chip(chip_type)
     chips_left = chip_pool.remove_chips(chip_type)
-    game.chip_pool.add_chips(chip_type)
+    if !chips_left.nil?
+      game.chip_pool.add_chips(chip_type)
+    end
     chips_left
   end
 end

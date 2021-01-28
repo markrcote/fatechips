@@ -12,12 +12,12 @@ export async function mutateWithAuth(mutation, onUserError) {
   try {
     return await gqlClient.request(mutation);
   } catch (e) {
-    if (e && e.response && e.response.errors && e.response.errors[0] && e.response.errors[0].extensions) {
-      console.log('exception:');
-      console.log(e.response.errors[0].extensions.code);
+    if (e && e.response && e.response.errors && e.response.errors[0]
+       && e.response.errors[0].message == 'User not signed in') {
+         onUserError(e);
+    } else {
+      throw e;
     }
-    throw e;
-    //onUserError(e);
   }
   return null;
 }

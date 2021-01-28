@@ -84,6 +84,10 @@ function Player(props) {
 }
 
 function Game(props) {
+  // FIXME: This leads to a memory-leak error.
+  if (props.user === null) {
+    return null;
+  }
   const [messages, setMessages] = useState([]);
 
   const { data, mutate } = useSWR(
@@ -245,6 +249,7 @@ function Games() {
 function App() {
   const [user, setUser] = useState(loadUser());
   useEffect(() => {
+    console.log('changing user');
     saveUser(user);
     const pathname = window.location.pathname;
     if (user === null && pathname != "/signin" && pathname != "/register") {
@@ -263,7 +268,7 @@ function App() {
       <UserStatus user={user} />
       <Router>
         <Games path="/" />
-        <Game path="game/:gameId" user={user} /*onUserError={() => {setUser(null)}}*/ />
+        <Game path="game/:gameId" user={user} onUserError={() => {setUser(null)}} />
         <RegisterUser path="/register" onUserChange={setUser} />
         <SignIn path="/signin" onUserChange={setUser} />
         <SignOut path="/signout" onUserChange={setUser} />

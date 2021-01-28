@@ -5,6 +5,10 @@ class ChipPool < ApplicationRecord
     returned_chip_count = find_chip_count(chip_type)
 
     if !returned_chip_count.nil?
+      if count < 0 and returned_chip_count.count < count * -1
+        return nil
+      end
+
       returned_chip_count.count += count
       returned_chip_count.save
     end
