@@ -1,7 +1,7 @@
 class User < ApplicationRecord
   include GraphQL::Interface
 
-  has_many :player
+  has_many :player, dependent: :destroy
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
