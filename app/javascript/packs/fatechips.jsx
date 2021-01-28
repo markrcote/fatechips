@@ -249,7 +249,6 @@ function Games() {
 function App() {
   const [user, setUser] = useState(loadUser());
   useEffect(() => {
-    console.log('changing user');
     saveUser(user);
     const pathname = window.location.pathname;
     if (user === null && pathname != "/signin" && pathname != "/register") {
