@@ -1,18 +1,18 @@
 module Mutations
   class TakeChip < BaseMutation
-    argument(:game_id, ID, required: true)
+    argument(:player_id, ID, required: true)
 
     field(:chip_type, String, null: false)
     field(:game, Types::GameType, null: false)
     field(:errors, [String], null: false)
 
-    def resolve(game_id:)
+    def resolve(player_id:)
       authorize_user
-      game = Game.find(game_id)
-      chip_count = game.chip_pool.take_chip
+      player = Player.find(player_id)
+      chip_count = player.take_chip
       {
         chip_type: chip_count.chip_type,
-        game: game,
+        game: player.game,
         errors: []
       }
     end

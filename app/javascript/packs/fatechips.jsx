@@ -74,13 +74,57 @@ function ChipPool(props) {
   );
 }
 
+function Player(props) {
+  return (
+    <div>
+      <h3>Your chips</h3>
+      <ChipPool chipPool={props.player.chipPool} onReturnChip={props.onReturnChip} />
+    </div>
+  )
+}
+
 function Game(props) {
-  // FIXME: Lots of refactoring to do here.
   const [messages, setMessages] = useState([]);
+
+  const { data, mutate } = useSWR(
+    `{
+       game(id: ${props.gameId}) {
+         name
+         chipPool {
+           chipCount {
+             chipType
+             count
+           }
+         }
+         player {
+           id
+           chipPool {
+             chipCount {
+               chipType
+               count
+             }
+           }
+           user {
+             id
+           }
+         }
+       }
+     }`,
+    fetcher, { refreshInterval: 2000 }
+  );
+
+  if (!data || !data.game) {
+    return (
+      <div>loading...</div>
+    );
+  }
+
+  let currentPlayer = data.game.player.find(player => player.user.id == props.user.id);
+  let currentPlayerComp = currentPlayer ? <Player player={currentPlayer} onReturnChip={handleReturnChip} /> : <div>you have no player in this game</div>;
 
   async function handleReturnChip(chipType) {
     const result = await mutateWithAuth(`mutation {
-      returnChip(input: {gameId: ${props.gameId}, chipType: "${chipType}"}) {
+      returnChip(input: {playerId: ${currentPlayer.id}, chipType: "${chipType}"}) {
         chipCount {
           chipType
         }
@@ -93,11 +137,15 @@ function Game(props) {
             }
           }
           player {
+            id
             chipPool {
               chipCount {
                 chipType
                 count
               }
+            }
+            user {
+              id
             }
           }
         }
@@ -114,7 +162,7 @@ function Game(props) {
 
   async function handleTakeChip() {
     let result = await mutateWithAuth(`mutation {
-      takeChip(input: {gameId: ${props.gameId}}) {
+      takeChip(input: {playerId: ${currentPlayer.id}}) {
         chipType
         game {
           name
@@ -125,11 +173,15 @@ function Game(props) {
             }
           }
           player {
+            id
             chipPool {
               chipCount {
                 chipType
                 count
               }
+            }
+            user {
+              id
             }
           }
         }
@@ -144,42 +196,14 @@ function Game(props) {
     mutate({ ...data, game: result.takeChip.game }, false);
   }
 
-  const { data, mutate } = useSWR(
-    `{
-       game(id: ${props.gameId}) {
-         name
-         chipPool {
-           chipCount {
-             chipType
-             count
-           }
-         }
-         player {
-           chipPool {
-             chipCount {
-               chipType
-               count
-             }
-           }
-         }
-       }
-     }`,
-    fetcher, { refreshInterval: 2000 }
-  );
-
-  let body = null;
-
-  if (!data || !data.game) {
-    return (
-      <div>loading...</div>
-    );
-  }
-
   return (
     <div>
       <h2>Game "{data.game.name}"</h2>
 
-      <ChipPool chipPool={data.game.chipPool} onReturnChip={handleReturnChip} onTakeChip={handleTakeChip} />
+      {currentPlayerComp}
+
+      <h3>Chips in pool</h3>
+      <ChipPool chipPool={data.game.chipPool} onTakeChip={handleTakeChip} />
 
       <p>
         <Link to="/">Back to games</Link>
@@ -239,7 +263,7 @@ function App() {
       <UserStatus user={user} />
       <Router>
         <Games path="/" />
-        <Game path="game/:gameId" onUserError={() => {setUser(null)}} />
+        <Game path="game/:gameId" user={user} /*onUserError={() => {setUser(null)}}*/ />
         <RegisterUser path="/register" onUserChange={setUser} />
         <SignIn path="/signin" onUserChange={setUser} />
         <SignOut path="/signout" onUserChange={setUser} />
