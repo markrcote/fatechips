@@ -78,37 +78,6 @@ function Game(props) {
   // FIXME: Lots of refactoring to do here.
   const [messages, setMessages] = useState([]);
 
-  const { data, mutate } = useSWR(
-    `{
-       game(id: ${props.gameId}) {
-         name
-         chipPool {
-           chipCount {
-             chipType
-             count
-           }
-         }
-         player {
-           chipPool {
-             chipCount {
-               chipType
-               count
-             }
-           }
-         }
-       }
-     }`,
-    fetcher, { refreshInterval: 2000 }
-  );
-
-  let body = null;
-
-  if (!data || !data.game) {
-    return (
-      <div>loading...</div>
-    );
-  }
-
   async function handleReturnChip(chipType) {
     const result = await mutateWithAuth(`mutation {
       returnChip(input: {gameId: ${props.gameId}, chipType: "${chipType}"}) {
@@ -173,6 +142,37 @@ function Game(props) {
 
     setMessages([`got a ${result.takeChip.chipType} chip`].concat(messages));
     mutate({ ...data, game: result.takeChip.game }, false);
+  }
+
+  const { data, mutate } = useSWR(
+    `{
+       game(id: ${props.gameId}) {
+         name
+         chipPool {
+           chipCount {
+             chipType
+             count
+           }
+         }
+         player {
+           chipPool {
+             chipCount {
+               chipType
+               count
+             }
+           }
+         }
+       }
+     }`,
+    fetcher, { refreshInterval: 2000 }
+  );
+
+  let body = null;
+
+  if (!data || !data.game) {
+    return (
+      <div>loading...</div>
+    );
   }
 
   return (
