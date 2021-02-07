@@ -27,11 +27,11 @@ function UserStatus(props) {
   }
 
   return (
-    <div>
-      <p>
-        <span>{props.user.email}</span>
+    <div class="userstatus">
+      <div class="signoutlink">
         <Link to="/signout">sign out</Link>
-      </p>
+      </div>
+      <div class="useremail">{props.user.email}</div>
     </div>
   )
 }
@@ -263,15 +263,19 @@ function App() {
         fetcher: (...args) => fetch(...args).then(res => res.json())
       }}
     >
-      <h1>Fate Chips</h1>
-      <UserStatus user={user} />
-      <Router>
-        <Games path="/" />
-        <Game path="game/:gameId" user={user} onUserError={() => {setUser(null)}} />
-        <RegisterUser path="/register" onUserChange={setUser} />
-        <SignIn path="/signin" onUserChange={setUser} />
-        <SignOut path="/signout" onUserChange={setUser} />
-      </Router>
+      <div class="header">
+        <UserStatus user={user} />
+        <h1 class="pagetitle">Fate Chips</h1>
+      </div>
+      <div class="content">
+        <Router>
+          <Games path="/" />
+          <Game path="game/:gameId" user={user} onUserError={() => {setUser(null)}} />
+          <RegisterUser path="/register" onUserChange={setUser} />
+          <SignIn path="/signin" onUserChange={setUser} />
+          <SignOut path="/signout" onUserChange={setUser} />
+        </Router>
+      </div>
     </SWRConfig>
   );
 }
