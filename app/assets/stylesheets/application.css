@@ -27,6 +27,10 @@ h1, h2 {
   font-family: 'Rye', cursive;
 }
 
+td {
+  padding: 0 20px 0 0;
+}
+
 .pagetitle {
   margin: 0;
 }
@@ -54,4 +58,17 @@ h1, h2 {
   background-color:peru;
   width: 100%;
   margin: 0;
+}
+
+.primarycontainer {
+  width: 100%;
+}
+
+.primary {
+  float: left;
+  padding: 0 100px 20px 30px;
+}
+
+.backlink {
+  clear: both;
 }

@@ -204,12 +204,17 @@ function Game(props) {
     <div>
       <h2>Game "{data.game.name}"</h2>
 
-      {currentPlayerComp}
+      <div class="primarycontainer">
+        <div class="primary">
+          {currentPlayerComp}
+        </div>
+        <div class="primary">
+          <h3>Pool</h3>
+          <ChipPool chipPool={data.game.chipPool} onTakeChip={handleTakeChip} />
+        </div>
+      </div>
 
-      <h3>Chips in pool</h3>
-      <ChipPool chipPool={data.game.chipPool} onTakeChip={handleTakeChip} />
-
-      <p>
+      <p class="backlink">
         <Link to="/">Back to games</Link>
       </p>
       <Messages messages={messages}/>
