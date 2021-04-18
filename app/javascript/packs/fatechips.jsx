@@ -53,11 +53,11 @@ function UserStatus(props) {
   }
 
   return (
-    <div class="userstatus">
-      <div class="signoutlink">
+    <div className="userstatus">
+      <div className="signoutlink">
         <Link to="/signout">sign out</Link>
       </div>
-      <div class="useremail">{props.user.email}</div>
+      <div className="useremail">{props.user.email}</div>
     </div>
   )
 }
@@ -230,17 +230,17 @@ function Game(props) {
     <div>
       <h2>Game "{data.game.name}"</h2>
 
-      <div class="primarycontainer">
-        <div class="primary">
+      <div className="primarycontainer">
+        <div className="primary">
           {currentPlayerComp}
         </div>
-        <div class="primary">
+        <div className="primary">
           <h3>Pool</h3>
           <ChipPool chipPool={data.game.chipPool} onTakeChip={handleTakeChip} />
         </div>
       </div>
 
-      <p class="backlink">
+      <p className="backlink">
         <Link to="/">Back to games</Link>
       </p>
       <Messages messages={messages}/>
@@ -294,11 +294,11 @@ function App() {
         fetcher: (...args) => fetch(...args).then(res => res.json())
       }}
     >
-      <div class="header">
+      <div className="header">
         <UserStatus user={user} />
-        <h1 class="pagetitle">Fate Chips</h1>
+        <h1 className="pagetitle">Fate Chips</h1>
       </div>
-      <div class="content">
+      <div className="content">
         <Router>
           <Games path="/" />
           <Game path="game/:gameId" user={user} onUserError={() => {setUser(null)}} />
