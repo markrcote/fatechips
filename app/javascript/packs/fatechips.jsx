@@ -6,6 +6,13 @@ import { Link, Router, navigate } from '@reach/router'
 import { fetcher, mutateWithAuth } from './client.js';
 import { SignIn, RegisterUser, SignOut, loadUser, saveUser } from './users'
 
+let chipTypeWeights = new Map([
+  ['white', 3],
+  ['blue', 2],
+  ['red', 1],
+  ['legend', 0],
+]);
+
 function sortStrings(a, b) {
   a = a.toLowerCase();
   b = b.toLowerCase();
@@ -19,6 +26,25 @@ function sortStrings(a, b) {
   }
 
   return 0;
+}
+
+function sortChipTypes(a, b) {
+  let weightA = chipTypeWeights.get(a.toLowerCase());
+  let weightB = chipTypeWeights.get(b.toLowerCase());
+
+  if (weightA === undefined && weightB === undefined) {
+    return sortStrings(a, b);
+  }
+
+  if (weightA === undefined) {
+    return 1;
+  }
+
+  if (weightB === undefined) {
+    return -1;
+  }
+
+  return weightB - weightA;
 }
 
 function UserStatus(props) {
@@ -57,7 +83,7 @@ function ChipPool(props) {
     <div>
       <table>
         <tbody>
-          { props.chipPool.chipCount.sort((a, b) => sortStrings(a.chipType, b.chipType)).map(chipCount => (
+          { props.chipPool.chipCount.sort((a, b) => sortChipTypes(a.chipType, b.chipType)).map(chipCount => (
             <tr key={chipCount.chipType}>
               <td>{chipCount.chipType}</td><td>{chipCount.count}</td>
               { 
