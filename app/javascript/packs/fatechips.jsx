@@ -8,8 +8,8 @@ import { SignIn, RegisterUser, SignOut, loadUser, saveUser } from './users'
 
 let chipTypeWeights = new Map([
   ['white', 3],
-  ['blue', 2],
-  ['red', 1],
+  ['red', 2],
+  ['blue', 1],
   ['legend', 0],
 ]);
 
